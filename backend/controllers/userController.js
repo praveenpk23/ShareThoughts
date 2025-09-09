@@ -54,3 +54,25 @@ export const logoutUser = asyncHandler(async (req, res) => {
   res.clearCookie('jwt');
   res.json({ message: 'Logged out' });
 });
+
+
+// @desc Get user by ID
+// @route GET /api/users/getuser
+export const getUserById = asyncHandler(async (req, res) => {
+  const {userId} = req.query
+  console.log(userId, req.user);
+  if(req.user._id.equals(userId)){
+    const user = await User.findById(userId).select('-password');
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  }else{
+    res.status(403);
+    console.log(userId, req.user._id);
+    throw new Error('Not authorized to access this user');
+  }
+  
+});

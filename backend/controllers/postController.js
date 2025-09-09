@@ -12,9 +12,18 @@ export const createPost = asyncHandler(async (req, res) => {
 });
 
 // @desc Get posts (all or by userId) with pagination
-// @route GET /api/posts
+// @route GET /api/posts/:id
 export const getPosts = asyncHandler(async (req, res) => {
   const { userId } = req.query;
+  const {id} = req.params;
+  if(id){
+    const post = await Post.findById(id);
+    if(!post) {
+      res.status(404);
+      throw new Error('Post not found');
+    }
+     return res.json(post);
+  }
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
@@ -26,6 +35,14 @@ export const getPosts = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
+  res.json(posts);
+});
+
+// @desc Get all posts by userId
+// @route GET /api/posts/user/:id
+export const getAllPostsById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const posts = await Post.find({ userId: id }).sort({ createdAt: -1 });
   res.json(posts);
 });
 
