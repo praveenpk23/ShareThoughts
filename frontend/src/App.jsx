@@ -3,14 +3,17 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Outlet } from 'react-router-dom'
+import Header from './Header'
+import { Toaster } from 'react-hot-toast'
 function App() {
 
   return (
     <>
+      <Header />
       <div>
-        <p> Header </p>
         <Outlet />
       </div>
+      <Toaster position='top-right' reverseOrder={false}/>
     </>
   )
 }
