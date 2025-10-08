@@ -1,8 +1,8 @@
 import React from "react";
-import { useGetUserProfileQuery } from "./features/users/UserApiSLice";
+import { useGetUserProfileQuery } from "./app/UserApiSLice";
 import { Link, useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "./features/users/UserApiSLice";
-import { userApiSlice } from "./features/users/UserApiSLice";
+import { useLogoutMutation } from "./app/UserApiSLice";
+import { userApiSlice } from "./app/UserApiSLice";
 import { useDispatch } from "react-redux";
 const Header = () => {
   const navigate = useNavigate();
@@ -28,7 +28,9 @@ const Header = () => {
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
-        <Link to='/'><a className="btn btn-ghost text-xl">Share Thoughts</a></Link>
+        <Link to="/">
+          <a className="btn btn-ghost text-xl">Share Thoughts</a>
+        </Link>
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
@@ -43,7 +45,7 @@ const Header = () => {
               <ul className="bg-base-100 rounded-t-none p-2 absolute right-0 mt-2 shadow-lg z-[9999]">
                 {data && (
                   <li>
-                    <Link to='profile'>Profile</Link>
+                    <Link to="profile">Profile</Link>
                   </li>
                 )}
                 {data ? (
@@ -55,7 +57,6 @@ const Header = () => {
                     <Link to="/login">Login</Link>
                   </li>
                 )}
-
               </ul>
             </details>
           </li>

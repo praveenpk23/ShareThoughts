@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
-import { useCreatePostMutation } from '../PostsApiSlice';
-import { useGetUserProfileQuery } from '../../users/UserApiSLice';
-import {toast} from 'react-hot-toast';
-import { useEffect } from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { useState } from "react";
+import { useCreatePostMutation } from "../../../app/PostsApiSlice";
+import { useGetUserProfileQuery } from "../../../app/UserApiSLice";
+import { toast } from "react-hot-toast";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const PostForm = () => {
-  const [postText, setPostText] = useState('');
-  const [createPost, { isLoading, isSuccess, isError, error }] = useCreatePostMutation();
+  const [postText, setPostText] = useState("");
+  const [createPost, { isLoading, isSuccess, isError, error }] =
+    useCreatePostMutation();
   const { data: userProfile } = useGetUserProfileQuery();
-  const navigator = useNavigate()
+  const navigator = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await createPost({ post: postText }).unwrap(); // body { post: '...' }
-      setPostText('');
-      toast.success('Post created successfully!');
+      setPostText("");
+      toast.success("Post created successfully!");
     } catch (err) {
-      console.error('Failed to create post', err);
+      console.error("Failed to create post", err);
     }
   };
 
-  useEffect(()=>{
-    if(!userProfile?.name){
-      navigator('/login?redirect=/post');
+  useEffect(() => {
+    if (!userProfile?.name) {
+      navigator("/login?redirect=/post");
     }
-  },[navigator,userProfile?.name])
+  }, [navigator, userProfile?.name]);
 
   return (
     <div className="max-w-md mx-auto p-4">
@@ -38,10 +39,14 @@ const PostForm = () => {
           required
         ></textarea>
         <button className="btn btn-primary w-full" disabled={isLoading}>
-          {isLoading ? 'Posting...' : 'Post'}
+          {isLoading ? "Posting..." : "Post"}
         </button>
         {isSuccess && <p className="text-green-600 mt-2">Post created!</p>}
-        {isError && <p className="text-red-600 mt-2">{error?.data?.message || 'Error creating post'}</p>}
+        {isError && (
+          <p className="text-red-600 mt-2">
+            {error?.data?.message || "Error creating post"}
+          </p>
+        )}
       </form>
     </div>
   );

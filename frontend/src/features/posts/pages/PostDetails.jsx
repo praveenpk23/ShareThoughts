@@ -1,15 +1,11 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import { useGetPostByIdQuery } from "../PostsApiSlice";
+import { useGetPostByIdQuery } from "../../../app/PostsApiSlice";
+import LikeButton from "../components/LikeButton";
 
 const PostDetails = () => {
   const { id } = useParams();
-  const {
-    data: post,
-    isLoading,
-    isError,
-    error,
-  } = useGetPostByIdQuery(id);
+  const { data: post, isLoading, isError, error } = useGetPostByIdQuery(id);
 
   if (isLoading)
     return (
@@ -26,9 +22,7 @@ const PostDetails = () => {
     );
 
   if (!post)
-    return (
-      <div className="text-center text-gray-500 mt-10">No post found</div>
-    );
+    return <div className="text-center text-gray-500 mt-10">No post found</div>;
 
   return (
     <div className="max-w-xl mx-auto mt-8 bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -44,12 +38,15 @@ const PostDetails = () => {
           />
         </div>
         <div className="flex flex-col">
-        <Link to={`/profile/${post.userId?._id}`} className="font-medium hover:underline">
-          <span className="font-semibold text-gray-900 text-sm">
-            {post.userId?.name}
-          </span>
+          <Link
+            to={`/profile/${post.userId?._id}`}
+            className="font-medium hover:underline"
+          >
+            <span className="font-semibold text-gray-900 text-sm">
+              {post.userId?.name}
+            </span>
             {/* {post.userId?.name } */}
-          </Link>  
+          </Link>
           <span className="text-xs text-gray-500">
             {new Date(post.createdAt).toLocaleDateString()}
             {post.isUpdated && (
@@ -80,18 +77,21 @@ const PostDetails = () => {
       {/* Meta info */}
       <div className="px-4 pb-4 text-xs text-gray-500 border-t border-gray-100">
         <div className="pt-3 flex flex-col sm:flex-row sm:gap-6">
-          {/* <span>
-            <strong className="font-medium text-gray-700">ID:</strong> {post._id}
-          </span> */}
+          <span>
+           <LikeButton postId={post._id} />
+          </span>
+          <span>
+          </span>
           <span>
             <strong className="font-medium text-gray-700">Created:</strong>{" "}
             {new Date(post.createdAt).toLocaleString()}
           </span>
-          {post.isUpdated &&( <span>
-            <strong className="font-medium text-gray-700">Updated:</strong>{" "}
-            {new Date(post.updatedAt).toLocaleString()}
-          </span>)}
-         
+          {post.isUpdated && (
+            <span>
+              <strong className="font-medium text-gray-700">Updated:</strong>{" "}
+              {new Date(post.updatedAt).toLocaleString()}
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -1,16 +1,16 @@
-import { apiSlice } from "../../app/apiSlice";
-import { POST_URL, } from "../../Constant";
+import { apiSlice } from "./apiSlice";
+import { POST_URL } from "../Constant";
 
 export const postsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
- // Create post (mutation)
-  createPost: builder.mutation({
-  query: (newPost) => ({
-    url: POST_URL, // /api/posts
-    method: "POST",
-    body: newPost,
-  }), 
-}),
+    // Create post (mutation)
+    createPost: builder.mutation({
+      query: (newPost) => ({
+        url: POST_URL, // /api/posts
+        method: "POST",
+        body: newPost,
+      }),
+    }),
 
     // Get posts (all or by userId, with pagination)
     getPosts: builder.query({

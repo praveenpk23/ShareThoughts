@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   useRegisterMutation,
   useGetUserProfileQuery,
-} from "../../users/UserApiSLice";
+} from "../../../app/UserApiSLice";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 const RegisterScreen = () => {

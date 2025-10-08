@@ -6,10 +6,10 @@ import User from '../models/userModel.js';
 // @desc Register a new user
 // @route POST /api/users/register
 export const registerUser = asyncHandler(async (req, res) => {
-    console.log(req);
+    // console.log(req);
   const { name, email, password } = req.body;
   const userExists = await User.findOne({ email });
-  console.log(userExists);
+  // console.log(userExists);
   if (userExists) {
     res.status(400);
     throw new Error('User already exists');
@@ -60,19 +60,42 @@ export const logoutUser = asyncHandler(async (req, res) => {
 // @route GET /api/users/getuser
 export const getUserById = asyncHandler(async (req, res) => {
   const {userId} = req.query
-  console.log(userId, req.user);
-  if(req.user._id.equals(userId)){
-    const user = await User.findById(userId).select('-password');
+  if(!userId){
+    res.status(400);
+    throw new Error('User ID is required');
+  }
+  const user = await userId.findById(userId).select('-password');
   if (user) {
     res.json(user);
   } else {
     res.status(404);
     throw new Error('User not found');
   }
-  }else{
-    res.status(403);
-    console.log(userId, req.user._id);
-    throw new Error('Not authorized to access this user');
-  }
   
 });
+// export const getUserById = asyncHandler(async (req, res) => {
+//   const {userId} = req.query
+//   console.log(userId, req.user);
+//   if(req.user._id.equals(userId)){
+//     const user = await User.findById(userId).select('-password');
+//   if (user) {
+//     res.json(user);
+//   } else {
+//     res.status(404);
+//     throw new Error('User not found');
+//   }
+//   }else{
+//     res.status(403);
+//     console.log(userId, req.user._id);
+//     throw new Error('Not authorized to access this user');
+//   }
+  
+// });
+
+
+// @desc Get user profile
+// @route GET /api/users/profile
+
+export const getUserProfile = asyncHandler(async(req,res)=>{
+  res.json(req.user);
+})

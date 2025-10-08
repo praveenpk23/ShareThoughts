@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useGetUserProfileQuery } from "../UserApiSLice";
+import { useGetUserProfileQuery } from "../../../app/UserApiSLice";
 import {
   useGetAllPostsByUserQuery,
   useDeletePostMutation,
   useUpdatePostMutation,
-} from "../../posts/PostsApiSlice";
+} from "../../../app/PostsApiSlice";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
@@ -91,7 +91,7 @@ const ProfileScreen = () => {
                   <textarea
                     className="textarea textarea-bordered w-full text-lg"
                     rows={4}
-                    value={updatedText}
+                    value={updatedText} 
                     onChange={(e) => setUpdatedText(e.target.value)}
                   />
                   <div className="flex gap-3 justify-end mt-2">
@@ -118,34 +118,34 @@ const ProfileScreen = () => {
 
               <div className="flex  justify-around">
                 <div className="absolute top-4 pb-5 left-4">
-                   <Link
-                                    to={`/profile`}
-                                    className="font-semibold text-sm text-black hover:underline"
-                                  >
-                                    {post.userId.name}
-                                  </Link>
+                  <Link
+                    to={`/profile`}
+                    className="font-semibold text-sm text-black hover:underline"
+                  >
+                    {post.userId.name}
+                  </Link>
                 </div>
                 <div>
                   {/* Edit/Delete buttons */}
-              {editingPostId !== post._id && (
-                <div className="absolute top-4 pb-5 right-4 flex gap-2">
-                  <button
-                    className="btn btn-sm btn-outline btn-info"
-                    onClick={() => {
-                      setEditingPostId(post._id);
-                      setUpdatedText(post.post);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline btn-error"
-                    onClick={() => handleDelete(post._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+                  {editingPostId !== post._id && (
+                    <div className="absolute top-4 pb-5 right-4 flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline btn-info"
+                        onClick={() => {
+                          setEditingPostId(post._id);
+                          setUpdatedText(post.post);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline btn-error"
+                        onClick={() => handleDelete(post._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -156,10 +156,12 @@ const ProfileScreen = () => {
           </p>
         )}
       </div>
-       <Link to={"/post"}
-                  className="btn btn-primary btn-circle fixed bottom-6 right-6 shadow-xl">
-                  <FaPlus />
-                </Link>
+      <Link
+        to={"/post"}
+        className="btn btn-primary btn-circle fixed bottom-6 right-6 shadow-xl"
+      >
+        <FaPlus />
+      </Link>
     </div>
   );
 };

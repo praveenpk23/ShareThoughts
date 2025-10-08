@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useGetPostsQuery } from "../PostsApiSlice";
-import { useGetUserProfileQuery } from "../../users/UserApiSLice";
+import { useGetPostsQuery } from "../../../app/PostsApiSlice";
+import { useGetUserProfileQuery } from "../../../app/UserApiSLice";
 import { FaPlus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-
+import LikeButton from "../components/LikeButton";
 const Home = () => {
   const [page, setPage] = useState(1); // current page
   const [posts, setPosts] = useState([]); // combined posts list
   const [hasMore, setHasMore] = useState(true);
-  const { data: user } = useGetUserProfileQuery();
+  const { data: user, isLoading } = useGetUserProfileQuery();
   const navigator = useNavigate();
   // query hook for posts (10 per page)
   const { data, isFetching, isError } = useGetPostsQuery({
@@ -18,18 +18,20 @@ const Home = () => {
 
   // when new data arrives, append to posts
   useEffect(() => {
-    if (data) {
-      setPosts((prev) => {
-        const combined = page === 1 ? data : [...prev, ...data];
-        const unique = Array.from(
-          new Map(combined.map((p) => [p._id, p])).values()
-        );
-        return unique;
-      });
+    if (!isLoading) {
+      if (data) {
+        setPosts((prev) => {
+          const combined = page === 1 ? data : [...prev, ...data];
+          const unique = Array.from(
+            new Map(combined.map((p) => [p._id, p])).values()
+          );
+          return unique;
+        });
 
-      // If server gave fewer than limit or empty → no more data
-      if (data?.length < 10) {
-        setHasMore(false);
+        // If server gave fewer than limit or empty → no more data
+        if (data?.length < 10) {
+          setHasMore(false);
+        }
       }
     }
   }, [data, page]);
@@ -37,7 +39,7 @@ const Home = () => {
   // infinite scroll handler
   const handleScroll = useCallback(() => {
     const nearBottom =
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 0;
 
     if (nearBottom && !isFetching && hasMore) {
       setPage((prev) => prev + 1);
@@ -124,7 +126,7 @@ const Home = () => {
               </Link>
 
               {/* Optional image */}
-              {post.image && (
+              {/* {post.image && (
                 <div className="mt-3">
                   <img
                     src={post.image}
@@ -132,7 +134,10 @@ const Home = () => {
                     className="rounded-xl max-h-96 w-full object-cover"
                   />
                 </div>
-              )}
+              )} */}
+              <div className="mt-3 flex justify-start">
+                <LikeButton postId={post._id} />
+              </div>
             </div>
           </div>
         ))}

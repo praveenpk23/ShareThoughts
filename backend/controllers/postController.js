@@ -4,7 +4,11 @@ import Post from '../models/postModel.js';
 // @desc Create post
 // @route POST /api/posts
 export const createPost = asyncHandler(async (req, res) => {
-  const post = await Post.create({
+  if(!req.body.post){
+    res.status(400);
+    throw new Error('Post content is required');
+  }
+    const post = await Post.create({
     userId: req.user._id,
     post: req.body.post,
   });
@@ -17,7 +21,7 @@ export const getPosts = asyncHandler(async (req, res) => {
   const { userId } = req.query;
   const {id} = req.params;
   if(id){
-    const post = await Post.findById(id);
+    const post = await Post.findById(id).populate('userId', 'name email');
     if(!post) {
       res.status(404);
       throw new Error('Post not found');
@@ -30,7 +34,7 @@ export const getPosts = asyncHandler(async (req, res) => {
 
   const filter = userId ? { userId } : {};
 
-  const posts = await Post.find(filter)
+  const posts = await Post.find(filter).populate("userId", "name")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -42,7 +46,7 @@ export const getPosts = asyncHandler(async (req, res) => {
 // @route GET /api/posts/user/:id
 export const getAllPostsById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const posts = await Post.find({ userId: id }).sort({ createdAt: -1 });
+  const posts = await Post.find({ userId: id }).populate('userId','name' ).sort({ createdAt: -1 });
   res.json(posts);
 });
 

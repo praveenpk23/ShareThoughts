@@ -1,5 +1,5 @@
 import React from "react";
-import { useGetAllPostsByUserQuery } from "../../posts/PostsApiSlice";
+import { useGetAllPostsByUserQuery } from "../../../app/PostsApiSlice";
 import { Link, useParams } from "react-router-dom";
 
 const PostDetails = () => {
