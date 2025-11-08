@@ -7,10 +7,14 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
+import contentRoutes from "./routes/contentRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
+import AiRoutes from "./routes/AiRoutes.js";
 import { notFound, errorHandler } from "./middlewares/errorMiddleware.js";
+
 dotenv.config();
 const app = express();
+const router = express.Router();
 
 // middlewares
 app.use(express.json());
@@ -18,7 +22,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware
-const allowOrigin = ["http://localhost:5173"];
+const allowOrigin = ["http://localhost:5173", "http://localhost:5174"];
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -37,6 +41,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/content", contentRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/ai", AiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

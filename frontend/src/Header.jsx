@@ -1,69 +1,33 @@
-import React from "react";
-import { useGetUserProfileQuery } from "./app/UserApiSLice";
-import { Link, useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "./app/UserApiSLice";
-import { userApiSlice } from "./app/UserApiSLice";
-import { useDispatch } from "react-redux";
-const Header = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const {
-    data,
-    error,
-    isLoading,
-    refetch: refetchProfile,
-  } = useGetUserProfileQuery();
-  const [logout] = useLogoutMutation();
+import { AllRouters } from "./routes/AllRoutes";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
-  const logoutHandler = async () => {
-    try {
-      await logout();
-      dispatch(userApiSlice.util.resetApiState());
-      navigate("/login");
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+function App() {
   return (
-    <div className="navbar bg-base-100 shadow-sm">
-      <div className="flex-1">
-        <Link to="/">
-          <a className="btn btn-ghost text-xl">Share Thoughts</a>
-        </Link>
+    <div className="min-h-screen flex flex-col bg-base-200 text-base-content">
+
+      {/* Sticky Modern Navbar */}
+      <div className="sticky top-0 z-50 w-full border-b bg-base-100/80 backdrop-blur-xl shadow-sm">
+        <div className="max-w-6xl mx-auto px-4">
+          <Header />
+        </div>
       </div>
-      <div className="flex-none">
-        <ul className="menu menu-horizontal px-1">
-          <li>
-            {data && (
-              <Link to="/profile">{data && data?.name.slice(0, 1)}</Link>
-            )}
-          </li>
-          <li>
-            <details>
-              <summary>{data?.name ? data.name : "User"}</summary>
-              <ul className="bg-base-100 rounded-t-none p-2 absolute right-0 mt-2 shadow-lg z-[9999]">
-                {data && (
-                  <li>
-                    <Link to="profile">Profile</Link>
-                  </li>
-                )}
-                {data ? (
-                  <li>
-                    <a onClick={logoutHandler}>Logout</a>
-                  </li>
-                ) : (
-                  <li>
-                    <Link to="/login">Login</Link>
-                  </li>
-                )}
-              </ul>
-            </details>
-          </li>
-        </ul>
-      </div>
+
+      {/* Content */}
+      <main className="flex-1 flex w-full justify-center">
+        <div className="w-full max-w-4xl px-4 py-10">
+          <AllRouters />
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-base-100">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <Footer />
+        </div>
+      </footer>
     </div>
   );
-};
+}
 
-export default Header;
+export default App;
