@@ -4,14 +4,15 @@ import {
   useLoginMutation,
   useGetUserProfileQuery,
 } from "../../../app/UserApiSLice";
-import { useLogoutMutation } from "../../../app/UserApiSLice";
+import { LikeApiSlice } from "../../../app/LikeApiSLice";
+import { useDispatch } from "react-redux";
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigator = useNavigate();
   const location = useLocation();
-
+  const dispatch = useDispatch();
   const redirect = new URLSearchParams(location.search).get("redirect") || "";
   console.log(redirect);
 
@@ -30,7 +31,7 @@ const LoginScreen = () => {
       // Login
       await loginUser({ email, password }).unwrap();
       refetchProfile();
-
+      dispatch(LikeApiSlice.util.invalidateTags(["Like"]));
     } catch (err) {
       console.error("Login failed:", err);
       setError(err?.data?.message || "Login failed");
@@ -41,7 +42,7 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if (profileData) {
-       navigator(`/${redirect}`);
+      navigator(`/${redirect}`);
     }
   }, [profileData]);
 

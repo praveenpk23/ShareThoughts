@@ -16,9 +16,7 @@ const router = express.Router();
 
 // Public or user feed (auto-filtered/random)
 router
-  .route("/")
-  .get(protect, getContents) // if token -> filtered feed
-  .get(getContents); // fallback random for non-auth
+  .route("/").get(getContents); 
 
 // Admin-only operations
 router.route("/").post(protect, admin, createContent);

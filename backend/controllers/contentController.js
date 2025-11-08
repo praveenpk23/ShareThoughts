@@ -1,6 +1,8 @@
 import asyncHandler from "express-async-handler";
 import Content from "../models/contentModels.js";
 import ContentLike from "../models/contentLikeModel.js";
+import User from "../models/userModel.js";
+import jwt from 'jsonwebtoken';
 
 // 🟢 Create new content (Admin only)
 export const createContent = asyncHandler(async (req, res) => {
@@ -22,31 +24,47 @@ export const createContent = asyncHandler(async (req, res) => {
 
 // 🟢 Get all contents (with filtering & pagination)
 export const getContents = asyncHandler(async (req, res) => {
+  let token = req.cookies.jwt;
+  req.user = null;
+
+  // Soft authentication
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.userId).select("-password");
+    } catch (err) {
+      req.user = null;
+    }
+  }
+
   const pageSize = Number(req.query.limit) || 10;
   const page = Number(req.query.page) || 1;
 
   let filter = {};
 
-  if (req.user?.UserId || req.user?._id) {
-    // If authenticated: filter by "for" category from user
-    if (req.user.for && req.user.for.length > 0) {
-      filter = { for: { $in: req.user.for } };
-    }
+  // ✅ PERSONALIZED FEED for logged-in user
+  if (req.user) {
+    filter = {
+      $or: [
+        { for: { $in: req.user.forPeople } },
+        { interestTags: { $in: req.user.interests } },
+        { professionTags: req.user.profession },
+      ],
+    };
   }
 
   const count = await Content.countDocuments(filter);
 
-  let query = Content.find(filter)
-    .sort({ createdAt: -1 }) // latest first
-    .skip(pageSize * (page - 1))
-    .limit(pageSize);
+  let contents;
 
-  // If unauthenticated, randomize order
-  if (!req.user) {
-    query = Content.aggregate([{ $sample: { size: pageSize } }]);
+  if (req.user) {
+    contents = await Content.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+  } else {
+    contents = await Content.aggregate([{ $sample: { size: pageSize } }]);
   }
-
-  const contents = await query;
 
   res.json({
     contents,
@@ -82,8 +100,8 @@ export const updateContent = asyncHandler(async (req, res) => {
     content.update = new Date();
 
     const updated = await content.save();
-    console.log(req.body )
-    console.log(updated )
+    console.log(req.body);
+    console.log(updated);
     res.json(updated);
   } else {
     res.status(404);
@@ -104,22 +122,7 @@ export const deleteContent = asyncHandler(async (req, res) => {
   }
 });
 
-// Like and unLike content (Admin only)
-export const toggleLike = async (req, res) => {
-  const { contentId } = req.body;
-  const userId = req.user._id;
-
-  const existing = await ContentLike.findOne({ contentId, userId });
-  if (existing) {
-    await existing.deleteOne();
-    return res.json({ message: "Unliked successfully" });
-  }
-
-  const newLike = await ContentLike.create({ contentId, userId });
-  res.status(201).json(newLike);
-};
-
-// 🟢 Get content by 
+// 🟢 Get content by
 export const getContentById = asyncHandler(async (req, res) => {
   const content = await Content.findById(req.params.id);
 
@@ -182,11 +185,39 @@ export const getContentsByCategory = asyncHandler(async (req, res) => {
 //  Get Likes Count for a Content
 export const getLikesCount = asyncHandler(async (req, res) => {
   const { contentId } = req.params;
-
+  let userId = null;
+  if (req.cookies.jwt) {
+    try {
+      const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
+      userId = decoded.userId;
+    } catch (e) {
+      userId = null;
+    }
+  }
   const count = await ContentLike.countDocuments({ contentId });
+  const userLiked = userId
+    ? await ContentLike.exists({ contentId, userId })
+    : false;
 
   res.json({
     contentId,
     likes: count,
+    userLiked: !!userLiked,
+    userId: userId,
   });
 });
+
+// Like and unLike content (Admin only)
+export const toggleLike = async (req, res) => {
+  const { contentId } = req.body;
+  const userId = req.user._id;
+
+  const existing = await ContentLike.findOne({ contentId, userId });
+  if (existing) {
+    await existing.deleteOne();
+    return res.json({ message: "Unliked successfully" });
+  }
+
+  const newLike = await ContentLike.create({ contentId, userId });
+  res.status(201).json(newLike);
+};
