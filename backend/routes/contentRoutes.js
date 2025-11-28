@@ -9,6 +9,7 @@ import {
   getContentsByCategory,
   getContentsByFor,
   getLikesCount,
+  getContentsByEmotion,
 } from "../controllers/contentController.js";
 import { protect, admin } from "../middlewares/authMiddleware.js";
 
@@ -26,6 +27,10 @@ router.get("/category/:category", getContentsByCategory);
 
 // fetch by audience "for"
 router.get("/for/:forValue", getContentsByFor);
+
+// fetch by emotion
+router.route("/emotion/:emotion").get(getContentsByEmotion);
+
 
 // fetch by id
 router

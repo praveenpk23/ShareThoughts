@@ -94,6 +94,80 @@ const PostDetails = () => {
           )}
         </div>
       </div>
+      {/* ✅ COMMENT SECTION (Unique Design) */}
+<div className="mt-6 px-4 pb-6 border-t border-gray-200">
+
+  {/* Title */}
+  <h3 className="text-lg font-semibold mb-3 text-gray-800">Comments</h3>
+
+  {/* ✅ Comment Input Row */}
+  <div className="flex items-start gap-3 mb-5">
+    {/* Avatar Initials */}
+    <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold">
+      PK
+    </div>
+
+    <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3">
+      <textarea
+        className="w-full bg-transparent text-sm resize-none outline-none"
+        rows="2"
+        placeholder="Add a comment..."
+      ></textarea>
+
+      <div className="flex justify-end mt-2">
+        <button className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {/* ✅ Dummy Comments */}
+  <div className="space-y-4">
+
+    {[ 
+      { id: 3, name: "Praveen Kumar", text: "Keep posting brother!", time: "1d" }
+    ].map((c) => {
+      const initials = c.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+      return (
+        <div
+          key={c.id}
+          className="flex items-start gap-3 bg-white border border-gray-200 rounded-xl p-3"
+        >
+          {/* ✅ Avatar Initials */}
+          <div className="w-9 h-9 rounded-full bg-gray-800 text-white flex items-center justify-center font-semibold text-sm">
+            {initials}
+          </div>
+
+          <div className="flex-1">
+            {/* Name + Time */}
+            <div className="flex justify-between mb-1">
+              <p className="font-medium text-gray-900 text-sm">{c.name}</p>
+              <span className="text-xs text-gray-500">{c.time}</span>
+            </div>
+
+            {/* Comment Text */}
+            <p className="text-sm text-gray-700 leading-relaxed">{c.text}</p>
+
+            {/* Like + Reply */}
+            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+              <button className="hover:text-blue-600 transition">Like</button>
+              <button className="hover:text-blue-600 transition">Reply</button>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+
+</div>
+
     </div>
   );
 };

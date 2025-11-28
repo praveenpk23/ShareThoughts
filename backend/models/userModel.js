@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
         "Creator",
         "Other",
       ],
-      default: "Other",
+      default: "",
     },
 
     interests: {
@@ -59,4 +59,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: { createdAt: "createdAt", updatedAt: false } }
 );
 const User = mongoose.model('User', userSchema);
-export default User;
+export default User;  

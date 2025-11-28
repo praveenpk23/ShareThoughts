@@ -44,6 +44,21 @@ const contentSchema = new mongoose.Schema(
         },
       ],
     },
+emotion: {
+  type: [String],
+  enum: [
+    "happy",
+    "sad",
+    "angry",
+    "calm",
+    "inspired",
+    "motivated",
+    "fearful",
+    "hopeful",
+    "neutral",
+  ],
+  default: ["neutral"],
+},
 
     category: {
       type: String,
