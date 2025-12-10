@@ -9,6 +9,8 @@ const likeApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: { postId },
       }),
+      // invalidatesTags: (result, error, arg) => [{ type: "PostLikes", id: arg }],
+        // Invalidate only this post's likes so getPostLikes updates automatically
       invalidatesTags: (result, error, arg) => [{ type: "PostLikes", id: arg }],
     }),
     unLikePost: builder.mutation({
@@ -24,7 +26,9 @@ const likeApiSlice = apiSlice.injectEndpoints({
         url: `${LIKE_URL}/${postId}/likes`,
         method: "GET",
       }),
-      providesTags: ["Like"],
+      // providesTags: ["Like"],
+        // Provide a tag for this specific post so mutations can invalidate it
+      providesTags: (result, error, arg) => [{ type: "PostLikes", id: arg }],
     }),
     getLikedPosts: builder.query({
       query: () => ({

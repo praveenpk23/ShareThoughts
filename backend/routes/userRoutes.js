@@ -1,18 +1,31 @@
 import express from "express";
 import {
-  registerUser,
+  // registerUser,
+  registerStep1,
+  registerVerify,
+  // handleFinalRegister,
   loginUser,
   logoutUser,
   getUserById,
   getUserProfile,
+  updateUserProfile,
+  forgotPasswordStep1,
+  forgotPasswordStep2
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
-router.post("/register", registerUser);
+// router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.get("/getuser", getUserById);
-router.get("/profile",protect, getUserProfile);
+router.get("/profile", protect, getUserProfile);
+router.put("/profileUpdate", protect, updateUserProfile);
+router.post("/register/step1", registerStep1);  
+router.post("/register/verify", registerVerify);
+router.post("/forgetpassword/step1",forgotPasswordStep1);
+router.post("/forgetpassword/step2",forgotPasswordStep2);
+// router.post("/register/step3", handleFinalRegister); // New route for final registration step
+
 
 export default router;
