@@ -319,3 +319,130 @@ export const toggleLike = async (req, res) => {
   const newLike = await ContentLike.create({ contentId, userId });
   res.status(201).json(newLike);
 };
+
+
+
+
+
+// // // Search contents with optional filters
+
+export const searchContents = async (req, res) => {
+  try {
+    const { q, page = 1, limit = 10 } = req.query;
+    const pageSize = Number(limit);
+    const skip = pageSize * (page - 1);
+
+    let filter = {};
+    let sort = { createdAt: -1 };
+
+    if (q) {
+      const cleanQuery = q.replace(/[^\w\s]/gi, " ").trim();
+
+      filter = {
+        $or: [
+          { title: { $regex: cleanQuery, $options: "i" } },
+          { words: { $regex: cleanQuery, $options: "i" } },
+          { category: { $regex: cleanQuery, $options: "i" } },
+          { emotion: { $regex: cleanQuery, $options: "i" } },
+          { for: { $in: cleanQuery.split(" ") } },
+          { keywords: { $in: cleanQuery.split(" ") } },
+        ],
+      };
+    }
+
+    const count = await Content.countDocuments(filter);
+
+    const contents = await Content.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(pageSize);
+
+    res.json({
+      contents,
+      page: Number(page),
+      pages: Math.ceil(count / pageSize),
+      total: count,
+    });
+  } catch (err) {
+    console.error("SEARCH ERROR:", err);
+    res.status(500).json({ message: "Search failed" });
+  }
+};
+
+
+// // Suggestions 
+
+export const getSearchSuggestions = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.length < 2) return res.json([]);
+
+    const results = await Content.aggregate([
+      {
+        $match: {
+          $or: [
+            { title: { $regex: q, $options: "i" } },
+            { category: { $regex: q, $options: "i" } },
+            { emotion: { $regex: q, $options: "i" } },
+            { for: { $elemMatch: { $regex: q, $options: "i" } } },
+            { keywords: { $elemMatch: { $regex: q, $options: "i" } } },
+          ],
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          category: 1,
+          emotion: 1,
+          for: 1,
+          keywords: 1,
+        },
+      },
+      { $limit: 8 },
+    ]);
+
+    // Flatten suggestions: include type for frontend
+    const suggestions = [];
+    results.forEach((r) => {
+      if (r.title?.toLowerCase().includes(q.toLowerCase()))
+        suggestions.push({ type: "Title", value: r.title });
+      if (r.category?.toLowerCase().includes(q.toLowerCase()))
+        suggestions.push({ type: "Category", value: r.category });
+      if (r.emotion?.some((e) => e.toLowerCase().includes(q.toLowerCase())))
+        suggestions.push({
+          type: "Emotion",
+          value: r.emotion.find((e) =>
+            e.toLowerCase().includes(q.toLowerCase())
+          ),
+        });
+      if (r.for?.some((f) => f.toLowerCase().includes(q.toLowerCase())))
+        suggestions.push({
+          type: "Audience",
+          value: r.for.find((f) =>
+            f.toLowerCase().includes(q.toLowerCase())
+          ),
+        });
+      if (r.keywords?.some((k) => k.toLowerCase().includes(q.toLowerCase())))
+        suggestions.push({
+          type: "Keyword",
+          value: r.keywords.find((k) =>
+            k.toLowerCase().includes(q.toLowerCase())
+          ),
+        });
+    });
+
+    // Remove duplicates
+    const unique = Array.from(
+      new Map(suggestions.map((s) => [s.type + s.value, s])).values()
+    );
+
+    res.json(unique);
+  } catch (error) {
+    console.error("🔥 SUGGEST ERROR:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
