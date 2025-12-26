@@ -43,7 +43,8 @@ app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/comments", commentRoutes);
-app.use("/api/ai", AiRoutes);
+// app.use("/api/ai", AiRoutes);
+app.use("/api/chats", AiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
