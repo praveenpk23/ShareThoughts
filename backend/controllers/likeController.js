@@ -28,24 +28,43 @@ export const unlikePost = async (req, res) => {
 };
 
 // no of likes and current user liked or not
+// export const getPostLikes = async (req, res) => {
+//   const { postId } = req.params;
+
+//   let userId = null
+//   if(req.cookies.jwt){
+//     try{
+//       const decoded = jwt.verify(req.cookies.jwt,process.env.JWT_SECRET) 
+//       userId = decoded.userId
+//     }catch(e){
+//       userId = null
+//     }
+//   }
+
+//   // Total likes
+//   const totalLikes = await Like.countDocuments({ postId });
+
+//   // Whether the user liked
+//   const userLiked = userId ? await Like.exists({ postId, userId}) : false;
+
+//   res.json({ postId, totalLikes, userLiked: !!userLiked });
+// };
 export const getPostLikes = async (req, res) => {
   const { postId } = req.params;
+  if (!postId) return res.status(400).json({ message: "Post ID is required" });
 
-  let userId = null
-  if(req.cookies.jwt){
-    try{
-      const decoded = jwt.verify(req.cookies.jwt,process.env.JWT_SECRET) 
-      userId = decoded.userId
-    }catch(e){
-      userId = null
+  let userId = null;
+  if (req.cookies.jwt) {
+    try {
+      const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
+      userId = decoded.userId;
+    } catch (e) {
+      userId = null;
     }
   }
 
-  // Total likes
   const totalLikes = await Like.countDocuments({ postId });
-
-  // Whether the user liked
-  const userLiked = userId ? await Like.exists({ postId, userId}) : false;
+  const userLiked = userId ? await Like.exists({ postId, userId }) : false;
 
   res.json({ postId, totalLikes, userLiked: !!userLiked });
 };
