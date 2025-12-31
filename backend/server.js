@@ -90,7 +90,9 @@ app.use(cookieParser());
 /* -------------------- CORS -------------------- */
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")
-  : ["https://sharethoughts.workfys.in","https://wisdomwell.workfys.in"]; // no trailing slash
+  : ["https://sharethoughts.workfys.in","https://wisdomwell.workfys.in",
+    // "http://localhost:5173","http://localhost:5174"
+  ]; // no trailing slash
 
 app.use(
   cors({

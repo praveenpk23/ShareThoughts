@@ -60,7 +60,6 @@ const Home = () => {
       navigator("/login?redirect=post");
     }
   };
-  console.log(posts);
  
   const VerifiedBadge = () => (
   <svg

@@ -116,7 +116,7 @@ const Header = () => {
   const logoutHandler = async () => {
     await logout();
     dispatch(userApiSlice.util.resetApiState());
-    navigate("/login");
+    navigate("/");
   };
 
   return (

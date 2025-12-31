@@ -96,7 +96,13 @@ const LoginScreen = () => {
           {" "}
           Dont Have An Account ?{" "}
           <span className="text-primary link">
-            <Link to="/register">Register</Link>
+      <a
+        href="https://wisdomwell.workfys.in/register"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Register
+      </a>
           </span>{" "}
         </p>
       </div>

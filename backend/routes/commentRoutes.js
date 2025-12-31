@@ -15,6 +15,6 @@ router.post("/", protect, addComment);
 router.post("/reply", protect, addReply);
 
 // Get all comments for a post
-router.get("/:postId", protect, getCommentsForPost);
+router.get("/:postId", getCommentsForPost);
 
 export default router;
