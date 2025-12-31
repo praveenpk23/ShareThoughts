@@ -44,6 +44,70 @@ export const createPost = asyncHandler(async (req, res) => {
 
 // @desc Get posts sorted by likes (high → low)
 // @route GET /api/posts
+// export const getPosts = asyncHandler(async (req, res) => {
+//   const { userId } = req.query;
+
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 10;
+//   const skip = (page - 1) * limit;
+
+//   const matchStage = userId
+//     ? { userId: new mongoose.Types.ObjectId(userId) }
+//     : {};
+
+//   const posts = await Post.aggregate([
+//     { $match: matchStage },
+
+//     // join likes
+//     {
+//       $lookup: {
+//         from: "likes",               // collection name (plural!)
+//         localField: "_id",
+//         foreignField: "postId",
+//         as: "likes",
+//       },
+//     },
+
+//     // add likeCount
+//     {
+//       $addFields: {
+//         likeCount: { $size: "$likes" },
+//       },
+//     },
+
+//     // sort by likes DESC, then latest
+//     {
+//       $sort: {
+//         likeCount: -1,
+//         createdAt: -1,
+//       },
+//     },
+
+//     // pagination
+//     { $skip: skip },
+//     { $limit: limit },
+
+//     // populate user
+//     {
+//       $lookup: {
+//         from: "users",
+//         localField: "userId",
+//         foreignField: "_id",
+//         as: "userId",
+//       },
+//     },
+//     { $unwind: "$userId" },
+
+//     // clean output
+//     {
+//       $project: {
+//         likes: 0,
+//       },
+//     },
+//   ]);
+
+//   res.json(posts);
+// });
 export const getPosts = asyncHandler(async (req, res) => {
   const { userId } = req.query;
 
@@ -51,43 +115,29 @@ export const getPosts = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const matchStage = userId
-    ? { userId: new mongoose.Types.ObjectId(userId) }
-    : {};
+  const matchStage = {};
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    matchStage.userId = new mongoose.Types.ObjectId(userId);
+  }
 
   const posts = await Post.aggregate([
     { $match: matchStage },
-
-    // join likes
     {
       $lookup: {
-        from: "likes",               // collection name (plural!)
+        from: "likes",
         localField: "_id",
         foreignField: "postId",
         as: "likes",
       },
     },
-
-    // add likeCount
     {
       $addFields: {
         likeCount: { $size: "$likes" },
       },
     },
-
-    // sort by likes DESC, then latest
-    {
-      $sort: {
-        likeCount: -1,
-        createdAt: -1,
-      },
-    },
-
-    // pagination
+    { $sort: { likeCount: -1, createdAt: -1 } },
     { $skip: skip },
     { $limit: limit },
-
-    // populate user
     {
       $lookup: {
         from: "users",
@@ -97,13 +147,7 @@ export const getPosts = asyncHandler(async (req, res) => {
       },
     },
     { $unwind: "$userId" },
-
-    // clean output
-    {
-      $project: {
-        likes: 0,
-      },
-    },
+    { $project: { likes: 0 } },
   ]);
 
   res.json(posts);

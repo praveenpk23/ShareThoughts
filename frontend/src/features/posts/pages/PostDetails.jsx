@@ -6,6 +6,7 @@ import { VerifiedBadge } from "../../../VerificationIcon";
 import {  useGetUserProfileQuery} from '../../../app/UserApiSLice';
 const PostDetails = () => {
   const { id } = useParams();
+  console.log("Post ID from URL:", id);
   const { data: post, isLoading, isError, error } = useGetPostByIdQuery(id);
   const [commentText, setCommentText] = useState("");
 
@@ -33,6 +34,7 @@ const [addReply, { isLoading: replying }] =
     }).unwrap();
 
     setCommentText(""); // clear input
+    
   } catch (err) {
     console.error("Failed to add comment", err);
   }
