@@ -90,20 +90,23 @@ app.use(cookieParser());
 /* -------------------- CORS -------------------- */
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")
-  : ["https://sharethoughts.workfys.in/"];
+  : ["https://sharethoughts.workfys.in"]; // no trailing slash
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // allow requests with no origin (like Postman, server-to-server)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log("Blocked by CORS:", origin); // helpful for debugging
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
 
 /* -------------------- ROUTES -------------------- */
 app.use("/api/users", userRoutes);
