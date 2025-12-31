@@ -63,7 +63,6 @@
 //   }
 // })();
 
-
 import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -89,10 +88,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 /* -------------------- CORS -------------------- */
-// use env for production, fallback to localhost for dev
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")
-  : ["http://localhost:5173", "http://localhost:5174"];
+  : ["https://sharethoughts.workfys.in/"];
 
 app.use(
   cors({
@@ -124,18 +122,22 @@ const PORT = process.env.PORT || 5000;
 
 (async () => {
   try {
+    // Connect to MongoDB before accepting requests
     await connectDB();
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
 
-    /* -------- GRACEFUL SHUTDOWN (NO EXTRA PACKAGES) -------- */
-    process.on("SIGINT", async () => {
+    /* -------- GRACEFUL SHUTDOWN -------- */
+    const shutdown = async () => {
       console.log("🛑 Shutting down server...");
       await mongoose.connection.close();
       server.close(() => process.exit(0));
-    });
+    };
+
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
   } catch (err) {
     console.error("❌ Failed to start server:", err);
     process.exit(1);
