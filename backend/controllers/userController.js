@@ -152,7 +152,7 @@ export const registerVerify = asyncHandler(async (req, res) => {
   res.cookie("jwt", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // cross-domain cookies
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 
@@ -182,7 +182,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     res.cookie("jwt", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // cross-domain cookies
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.json({
