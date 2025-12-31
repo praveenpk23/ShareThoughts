@@ -1,68 +1,192 @@
-import React from "react";
-import { useGetUserProfileQuery } from "./app/UserApiSLice";
+// import { Link, useNavigate } from "react-router-dom";
+// import {
+//   useGetUserProfileQuery,
+//   useLogoutMutation,
+//   userApiSlice,
+// } from "./app/UserApiSLice";
+// import { useDispatch } from "react-redux";
+// import { Search } from "lucide-react";
+
+// const Header = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
+//   const { data } = useGetUserProfileQuery();
+//   const [logout] = useLogoutMutation();
+
+//   const logoutHandler = async () => {
+//     await logout();
+//     dispatch(userApiSlice.util.resetApiState());
+//     navigate("/login");
+//   };
+
+//   return (
+//     <div className="navbar bg-base-100 shadow-sm px-2 sm:px-4">
+//       {/* LEFT - Logo */}
+//       <div className="flex-1 min-w-0">
+//         <Link
+//           to="/"
+//           className="btn btn-ghost text-lg sm:text-xl truncate"
+//         >
+//           Share Thoughts
+//         </Link>
+//       </div>
+
+//       {/* RIGHT - Actions */}
+//       <div className="flex items-center gap-1 sm:gap-3">
+//         {/* 🔍 Search */}
+//         <button
+//           className="btn btn-ghost btn-circle"
+//           onClick={() => navigate("/search")}
+//           aria-label="Search"
+//         >
+//           <Search size={20} />
+//         </button>
+
+//         {/* 👤 Profile / Auth */}
+//         {data ? (
+//           <details className="dropdown dropdown-end">
+//             <summary className="btn btn-ghost btn-circle avatar">
+//               <div className="w-9 sm:w-10 rounded-full overflow-hidden flex items-center justify-center">
+//                 <img
+//                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+//                     data.name
+//                   )}&background=random`}
+//                   alt={data.name}
+//                   className="w-full h-full object-cover"
+//                 />
+//               </div>
+//             </summary>
+
+//             <ul className="menu dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40 sm:w-44 z-[9999]">
+//               <li>
+//                 <Link to="/profile">Profile</Link>
+//               </li>
+//               <li>
+//                 <button onClick={logoutHandler}>Logout</button>
+//               </li>
+//             </ul>
+//           </details>
+//         ) : (
+//           <Link to="/login" className="btn btn-primary btn-sm sm:btn-md">
+//             Login
+//           </Link>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Header;
+
+
+
 import { Link, useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "./app/UserApiSLice";
-import { userApiSlice } from "./app/UserApiSLice";
+import {
+  useGetUserProfileQuery,
+  useLogoutMutation,
+  userApiSlice,
+} from "./app/UserApiSLice";
 import { useDispatch } from "react-redux";
+import { Search, Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
+
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {
-    data,
-    error,
-    isLoading,
-    refetch: refetchProfile,
-  } = useGetUserProfileQuery();
+
+  const { data } = useGetUserProfileQuery();
   const [logout] = useLogoutMutation();
 
-  const logoutHandler = async () => {
-    try {
-      await logout();
-      dispatch(userApiSlice.util.resetApiState());
-      navigate("/login");
-    } catch (err) {
-      console.log(err);
-    }
+  /* ================= THEME ================= */
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
-  return(
-     <div className="navbar bg-base-100 shadow-sm">
-      <div className="flex-1">
-        <Link to="/">
-          <a className="btn btn-ghost text-xl">Share Thoughts</a>
+  /* ========================================= */
+
+  const logoutHandler = async () => {
+    await logout();
+    dispatch(userApiSlice.util.resetApiState());
+    navigate("/login");
+  };
+
+  return (
+    <div className="navbar bg-base-100 shadow-sm px-2 sm:px-4 sticky top-0 z-50">
+      {/* LEFT - Logo */}
+      <div className="flex-1 min-w-0">
+        <Link
+          to="/"
+          className="btn btn-ghost text-lg sm:text-xl truncate"
+        >
+          Share Thoughts
         </Link>
       </div>
-      <div className="flex-none">
-        <ul className="menu menu-horizontal px-1">
-          <li>
-            {data && (
-              <Link to="/profile">{data && data?.name.slice(0, 1)}</Link>
-            )}
-          </li>
-          <li>
-            <details>
-              <summary>{data?.name ? data.name : "User"}</summary>
-              <ul className="bg-base-100 rounded-t-none p-2 absolute right-0 mt-2 shadow-lg z-[9999]">
-                {data && (
-                  <li>
-                    <Link to="profile">Profile</Link>
-                  </li>
-                )}
-                {data ? (
-                  <li>
-                    <a onClick={logoutHandler}>Logout</a>
-                  </li>
-                ) : (
-                  <li>
-                    <Link to="/login">Login</Link>
-                  </li>
-                )}
-              </ul>
-            </details>
-          </li>
-        </ul>
+
+      {/* RIGHT - Actions */}
+      <div className="flex items-center gap-1 sm:gap-3">
+        {/* 🔍 Search */}
+        <button
+          className="btn btn-ghost btn-circle"
+          onClick={() => navigate("/search")}
+          aria-label="Search"
+        >
+          <Search size={20} />
+        </button>
+
+        {/* 🌗 Theme Toggle */}
+        <button
+          className="btn btn-ghost btn-circle"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+        >
+          {theme === "light" ? (
+            <Moon size={20} />
+          ) : (
+            <Sun size={20} />
+          )}
+        </button>
+
+        {/* 👤 Profile / Auth */}
+        {data ? (
+          <details className="dropdown dropdown-end">
+            <summary className="btn btn-ghost btn-circle avatar">
+              <div className="w-9 sm:w-10 rounded-full overflow-hidden flex items-center justify-center">
+                <img
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    data.name
+                  )}&background=random`}
+                  alt={data.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </summary>
+
+            <ul className="menu dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40 sm:w-44 z-[9999]">
+              <li>
+                <Link to="/profile">Profile</Link>
+              </li>
+              <li>
+                <button onClick={logoutHandler}>Logout</button>
+              </li>
+            </ul>
+          </details>
+        ) : (
+          <Link to="/login" className="btn btn-primary btn-sm sm:btn-md">
+            Login
+          </Link>
+        )}
       </div>
     </div>
-  )
+  );
 };
 
 export default Header;

@@ -1,3 +1,5 @@
+import Content from "../models/contentModel.js";
+import asyncHandler from "express-async-handler";
 export const searchContents = asyncHandler(async (req, res) => {
   const {
     q,
@@ -42,3 +44,5 @@ export const searchContents = asyncHandler(async (req, res) => {
     total: count,
   });
 });
+
+

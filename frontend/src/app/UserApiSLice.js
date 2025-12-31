@@ -38,6 +38,12 @@ const userApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["User"],
     }),
+    getUsernameSuggestions: builder.query({
+      query: (search) => ({
+        url: `${USER_URL}/username-suggestions`,
+        params: { search },
+      }),
+    }),
   }),
 });
 export { userApiSlice };
@@ -47,4 +53,5 @@ export const {
   useLogoutMutation,
   useGetUserByIdQuery,
   useGetUserProfileQuery,
+  useGetUsernameSuggestionsQuery,
 } = userApiSlice;

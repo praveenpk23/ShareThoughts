@@ -24,7 +24,7 @@ export const addReply = async (req, res) => {
       $set: { updatedAt: new Date() }
     },
     { new: true }
-  ).populate("reply.userId", "name image").populate("userId", "name image");
+  ).populate("reply.userId", "name username image").populate("userId", "name username image");
 
  
   res.json(updatedComment);
@@ -35,8 +35,8 @@ export const getCommentsForPost = async (req, res) => {
   const { postId } = req.params;
 
   const comments = await Comment.find({ postId })
-    .populate("userId", "name image") // commenter info
-    .populate("reply.userId", "name image") // reply author info
+    .populate("userId", "name username ") // commenter info
+    .populate("reply.userId", "name username ") // reply author info
     .sort({ createdAt: 1 }); // oldest first
 
   res.json(comments);

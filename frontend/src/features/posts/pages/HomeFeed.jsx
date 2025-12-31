@@ -61,115 +61,143 @@ const Home = () => {
     }
   };
   console.log(posts);
+ 
+  const VerifiedBadge = () => (
+  <svg
+    className="w-5 h-5 inline-block ml-2"
+    viewBox="0 0 24 24"
+    aria-label="Verified"
+  >
+    <defs>
+      <mask id="tick-cutout">
+        {/* Visible area */}
+        <rect width="24" height="24" fill="white" />
+
+        {/* Cut-out check */}
+        <path
+          d="M10.4 15.6
+             7.7 12.9
+             9.1 11.5
+             10.4 12.8
+             14.9 8.3
+             16.3 9.7z"
+          fill="black"
+        />
+      </mask>
+    </defs>
+
+    {/* Blue star badge with transparent tick */}
+    <path
+      mask="url(#tick-cutout)"
+      fill="#0095F6"
+      d="M22.5 12
+         l-2.2-2.5.3-3.3
+         -3.2-.7-1.7-2.8
+         L12 3.9 8.3 2.7
+         6.6 5.5l-3.2.7
+         .3 3.3L1.5 12
+         l2.2 2.5-.3 3.3
+         3.2.7 1.7 2.8
+         3.8-1.2 3.8 1.2
+         1.7-2.8 3.2-.7
+         -.3-3.3L22.5 12z"
+    />
+  </svg>
+);
+
+
   return (
-    <div className="min-h-screen bg-base-200 p-4">
-      {/* <h1 className="text-3xl font-bold mb-6">Latest Posts</h1> */}
-
-      {/* {posts.map((post) => (
-        <Link to={`/post/${post._id}`} key={post._id} className="block mb-4">
-          <div
-          key={post._id}
-          className="card bg-base-100 shadow-md mb-4 hover:shadow-xl transition-all"
-        >
-          <div className="card-body">
-            <Link to={`/profile/${post.userId._id}`} className="card-title text-lg">  
-            <h2 className="card-title">{post.userId.name}</h2>
-            </Link>
-            <p>{post.post || "No content"}</p>
-            <span className="text-xs opacity-60">
-              {new Date(post.createdAt).toLocaleString()}
-            </span>
-          </div>
-        </div>
-        </Link>
-      ))} */}
-      <div className="w-[800px]  mx-auto">
-        {posts.map((post) => (
-          <div
-            key={post._id}
-            className="bg-white dark:bg-neutral shadow-sm hover:shadow-md transition rounded-xl border border-gray-200 dark:border-neutral mb-4"
-          >
-            {/* Top bar: avatar (initials) + name + timestamp */}
-            <div className="flex items-center gap-3 px-4 pt-3">
-              {/* Avatar with initials */}
-              <Link to={`/profile/${post.userId._id}`}>
-                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                  {post.userId.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </div>
-              </Link>
-
-              {/* Name + timestamp */}
-              <div className="flex flex-col">
-                <Link
-                  to={`/profile/${post.userId._id}`}
-                  className="font-semibold text-sm hover:underline"
-                >
-                  {post.userId.name}
-                </Link>
-                <span className="text-xs opacity-60">
-                  {new Date(post.createdAt).toLocaleString()}
-                  {post.isUpdated && " (edited)"}
-                </span>
-              </div>
-            </div>
-
-            {/* Post content */}
-            <div className="px-4 py-3">
-              <Link to={`/post/${post._id}`}>
-                <p className="text-base leading-snug line-clamp-3">
-                  {post.post || "No content"}
-                </p>
-              </Link>
-
-              {/* Optional image */}
-              {/* {post.image && (
-                <div className="mt-3">
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="rounded-xl max-h-96 w-full object-cover"
-                  />
-                </div>
-              )} */}
-              <div className="mt-3 flex justify-start">
-                <LikeButton postId={post._id} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Loading spinner when fetching more */}
-      {isFetching && (
-        <div className="flex justify-center my-6">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      )}
-
-      {/* Floating Add Post Button */}
-      <button
-        className="btn btn-primary btn-circle fixed bottom-6 right-6 shadow-xl"
-        onClick={handleAddPost}
+   <div className="min-h-screen bg-base-200 p-3 sm:p-4">
+  <div className="w-full max-w-2xl mx-auto">
+    {posts.map((post) => (
+      <div
+        key={post._id}
+        className="bg-base-100 shadow-sm hover:shadow-md transition rounded-xl border border-base-300 mb-4"
       >
-        <FaPlus />
-      </button>
+        {/* TOP BAR */}
+        <div className="flex items-center gap-3 px-4 pt-3">
+          {/* Avatar */}
+          <Link to={`/profile/${post.userId._id}`}>
+            <div className="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center text-sm font-semibold">
+              {post.userId?.name
+                ?.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()}
+            </div>
+          </Link>
 
-      {/* Error state */}
-      {isError && (
-        <div className="text-center text-red-500 mt-4">
-          Failed to load posts
+          {/* Name + timestamp */}
+          <div className="flex flex-col min-w-0">
+            <Link
+              to={`/profile/${post.userId._id}`}
+              className="inline-flex items-center gap-1 font-semibold text-sm hover:underline truncate"
+            >
+              {post.userId.username}
+              {post.userId.isVerified && <VerifiedBadge />}
+            </Link>
+
+           <span className="text-xs text-base-content/60">
+  {new Date(post.createdAt).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short", // short month format like "Sep"
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true, // 12-hour format with AM/PM
+  })}
+  {post.isUpdated && " · edited"}
+</span>
+
+          </div>
         </div>
-      )}
-      {!hasMore && (
-        <div className="text-center text-gray-500 my-4">
-          No more posts to load.
+
+        {/* POST CONTENT */}
+        <div className="px-4 py-3">
+          <Link to={`/post/${post._id}`}>
+            <p className="text-base leading-relaxed line-clamp-4 text-base-content">
+              {post.post || "No content"}
+            </p>
+          </Link>
+
+          {/* ACTIONS */}
+          <div className="mt-3 flex items-center gap-4">
+            <LikeButton postId={post._id} />
+          </div>
         </div>
-      )}
+      </div>
+    ))}
+  </div>
+
+  {/* Loading */}
+  {isFetching && (
+    <div className="flex justify-center my-6">
+      <span className="loading loading-spinner loading-md"></span>
     </div>
+  )}
+
+  {/* Floating Add Button */}
+  <button
+    className="btn btn-primary btn-circle fixed bottom-6 right-4 sm:right-6 shadow-xl"
+    onClick={handleAddPost}
+  >
+    <FaPlus />
+  </button>
+
+  {/* Error */}
+  {isError && (
+    <div className="text-center text-error mt-4">
+      Failed to load posts
+    </div>
+  )}
+
+  {!hasMore && (
+    <div className="text-center text-base-content/60 my-4">
+      No more posts to load.
+    </div>
+  )}
+</div>
+
   );
 };
 

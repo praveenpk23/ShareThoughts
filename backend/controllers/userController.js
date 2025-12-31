@@ -4,51 +4,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import Otp from "../models/otpModel.js";
 
-// @desc Register a new user
-// @route POST /api/users/register
 
-// export const registerUser = asyncHandler(async (req, res) => {
-//   const { name, email, password, profession, interests, forPeople, bio } = req.body;
-
-//   const userExists = await User.findOne({ email });
-//   if (userExists) {
-//     res.status(400);
-//     throw new Error("User already exists");
-//   }
-
-//   const hashedPassword = await bcrypt.hash(password, 10);
-
-//   const user = await User.create({
-//     name,
-//     email,
-//     password: hashedPassword,
-//     profession,
-//     interests,
-//     forPeople,
-//     bio
-//   });
-
-//   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-//     expiresIn: "30d",
-//   });
-
-//   res.cookie("jwt", token, {
-//     httpOnly: true,
-//     secure: process.env.NODE_ENV === "production",
-//     sameSite: "strict",
-//     maxAge: 30 * 24 * 60 * 60 * 1000,
-//   });
-
-//   res.status(201).json({
-//     _id: user._id,
-//     name: user.name,
-//     email: user.email,
-//     profession: user.profession,
-//     interests: user.interests,
-//     forPeople: user.forPeople,
-//     bio: user.bio,
-//   });
-// });
 import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
 
 // Initialize Brevo
@@ -57,14 +13,16 @@ brevoApi.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
 // STEP 1 – Send OTP
 export const registerStep1 = asyncHandler(async (req, res) => {
-  const { name, email, password, profession, interests, forPeople, bio } =
+  const { name, email, username, password, profession, interests, forPeople, bio } =
     req.body;
 
   // Check if user already exists
-  const userExists = await User.findOne({ email });
+const userExists = await User.findOne({
+  $or: [{ email }, { username:username.toLowerCase() }],
+});
   if (userExists) {
     res.status(400);
-    throw new Error("User already exists");
+    throw new Error("User already exists with this email or username");
   }
 
   // Remove old OTP if exists
@@ -102,6 +60,8 @@ export const registerStep1 = asyncHandler(async (req, res) => {
       interests,
       forPeople,
       bio,
+      username,
+      isVerified: false,
     },
     expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
   });
@@ -204,7 +164,10 @@ export const registerVerify = asyncHandler(async (req, res) => {
     interests: user.interests,
     forPeople: user.forPeople,
     bio: user.bio,
-  });
+    username: user.username,
+    isVerified: user.isVerified,
+
+  }); 
 });
 
 // @desc Login user
@@ -264,30 +227,66 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 
 // @desc Update user profile
 // @route PUT /api/users/profile
+// export const updateUserProfile = asyncHandler(async (req, res) => {
+//   const userId = req.user._id; // From auth middleware
+//   const user = await User.findById(userId);
+//   console.log("Updating user:", userId);
+//   if (!user) {
+//     res.status(404);
+//     throw new Error("User not found");
+//   }
+
+//   // Update fields if provided
+//   user.name = req.body.name || user.name;
+//   user.email = req.body.email || user.email;
+//   user.profession = req.body.profession || user.profession;
+//   user.interests = req.body.interests || user.interests;
+//   user.forPeople = req.body.forPeople || user.forPeople;
+//   user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+
+//   // Optionally allow password update
+//   if (req.body.password) {
+//     user.password = await bcrypt.hash(req.body.password, 10);
+//   }
+
+//   const updatedUser = await user.save();
+
+//   res.json({
+//     _id: updatedUser._id,
+//     name: updatedUser.name,
+//     email: updatedUser.email,
+//     profession: updatedUser.profession,
+//     interests: updatedUser.interests,
+//     forPeople: updatedUser.forPeople,
+//     bio: updatedUser.bio,
+//   });
+// });
+
+
 export const updateUserProfile = asyncHandler(async (req, res) => {
   const userId = req.user._id; // From auth middleware
   const user = await User.findById(userId);
 
+  console.log("Updating user:", userId);
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
 
-  // Update fields if provided
-  user.name = req.body.name || user.name;
-  user.email = req.body.email || user.email;
-  user.profession = req.body.profession || user.profession;
-  user.interests = req.body.interests || user.interests;
-  user.forPeople = req.body.forPeople || user.forPeople;
-  user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
-
-  // Optionally allow password update
-  if (req.body.password) {
-    user.password = await bcrypt.hash(req.body.password, 10);
-  }
+  // Loop through all fields in req.body
+  Object.keys(req.body).forEach((key) => {
+    // Handle password separately
+    if (key === "password" && req.body.password) {
+      user.password = bcrypt.hashSync(req.body.password, 10);
+    } else {
+      // Update existing or create new field
+      user[key] = req.body[key];
+    }
+  });
 
   const updatedUser = await user.save();
 
+  // Return the updated user
   res.json({
     _id: updatedUser._id,
     name: updatedUser.name,
@@ -296,8 +295,10 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     interests: updatedUser.interests,
     forPeople: updatedUser.forPeople,
     bio: updatedUser.bio,
+    ...updatedUser.toObject(), // Include any new fields dynamically
   });
 });
+
 
 // Forget Password - Send OTP
 // const brevoApi = new TransactionalEmailsApi();
@@ -406,3 +407,68 @@ export const forgotPasswordStep2 = asyncHandler(async (req, res) => {
 
   res.json({ message: "Password reset successfully!" });
 });
+
+
+
+
+
+
+// @desc Check username availability
+// @route GET /api/users/check-username?username=xyz
+export const checkUsernameAvailability = asyncHandler(async (req, res) => {
+  const { username } = req.query;
+
+  if (!username) {
+    res.status(400);
+    throw new Error("Username is required");
+  }
+
+  const existingUser = await User.findOne({ username });
+
+  if (existingUser) {
+    return res.json({
+      available: false,
+      message: "Username already taken",
+    });
+  }
+
+  res.json({
+    available: true,
+    message: "Username is available",
+  });
+});
+
+
+
+
+// @desc Username suggestions
+// @route GET /api/users/username-suggestions?search=praveen
+export const usernameSuggestions = asyncHandler(async (req, res) => {
+  const { search } = req.query; // ONE input from user
+  console.log("Search query:", search);
+  if (!search) {
+    res.status(400);
+    throw new Error("Search text required");
+  }
+
+  const regex = new RegExp(`^${search}`, "i");
+
+  const users = await User.find({
+    $or: [
+      { username: regex },
+      { name: regex },
+    ],
+  })
+    .limit(5)
+    .select("_id username name");
+
+  res.json({
+    suggestions: users.map((u) => ({
+      userId: u._id,
+      username: u.username,
+      name: u.name,
+    })),
+  });
+});
+
+

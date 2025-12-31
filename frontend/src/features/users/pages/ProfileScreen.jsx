@@ -8,8 +8,10 @@ import {
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
+import { VerifiedBadge } from "../../../VerificationIcon";
 const ProfileScreen = () => {
   const { data: user, isLoading: userLoading } = useGetUserProfileQuery();
+  // console.log("User Profile Data:", user); // ✅ debug
   const {
     data: posts,
     isLoading: postsLoading,
@@ -54,116 +56,159 @@ const ProfileScreen = () => {
       console.error(err);
     }
   };
+return (
+  <div className="max-w-4xl mx-auto mt-12 px-6">
 
-  return (
-    <div className="max-w-4xl mx-auto mt-12 px-6">
-      {/* User Info */}
-      <div className="flex items-center gap-6 mb-10 border-b pb-6">
-        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300 shadow-sm">
-          <img
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-              user?.name
-            )}&background=random`}
-            alt={user?.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold ">{user?.name}</h1>
-          <p className="text-gray-500 text-lg">@{user?.username || "user"}</p>
-          <p className="text-gray-100 mt-2 font-medium">
-            {posts?.length || 0} {posts?.length === 1 ? "post" : "posts"}
-          </p>
-        </div>
+    {/* USER INFO */}
+    <div className="flex items-center gap-6 mb-10 border-b border-base-300 pb-6">
+      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-base-300 shadow-sm bg-base-200">
+        <img
+          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+            user?.name
+          )}&background=random`}
+          alt={user?.name}
+          className="w-full h-full object-cover"
+        />
       </div>
 
-      {/* Posts */}
-      <div className="space-y-6">
-        {posts && posts.length > 0 ? (
-          posts.map((post) => (
-            <div
-              key={post._id}
-              className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 relative hover:shadow-lg transition-shadow"
-            >
-              {/* Post content */}
-              {editingPostId === post._id ? (
-                <div className="flex flex-col gap-3 mt-6">
-                  <textarea
-                    className="textarea textarea-bordered w-full text-lg"
-                    rows={4}
-                    value={updatedText} 
-                    onChange={(e) => setUpdatedText(e.target.value)}
-                  />
-                  <div className="flex gap-3 justify-end mt-2">
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => handleUpdate(post._id)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      className="btn btn-sm btn-secondary btn-outline"
-                      onClick={() => {
-                        setEditingPostId(null);
-                        setUpdatedText("");
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-800 text-lg mt-6  ">{post.post}</p>
-              )}
+      <div>
+        <h1 className="text-3xl font-bold text-base-content flex items-center gap-1">
+          @{user?.username}
+          {user?.isVerified && <VerifiedBadge />}
+        </h1>
 
-              <div className="flex  justify-around">
-                <div className="absolute top-4 pb-5 left-4">
-                  <Link
-                    to={`/profile`}
-                    className="font-semibold text-sm text-black hover:underline"
-                  >
-                    {post.userId.name}
-                  </Link>
-                </div>
-                <div>
-                  {/* Edit/Delete buttons */}
-                  {editingPostId !== post._id && (
-                    <div className="absolute top-4 pb-5 right-4 flex gap-2">
-                      <button
-                        className="btn btn-sm btn-outline btn-info"
-                        onClick={() => {
-                          setEditingPostId(post._id);
-                          setUpdatedText(post.post);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline btn-error"
-                        onClick={() => handleDelete(post._id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500 text-center text-lg mt-10">
-            No posts found
-          </p>
-        )}
+        <p className="opacity-60 text-lg">
+          {user?.name || "user"}
+        </p>
+
+        <p className="mt-2 font-medium opacity-80">
+          {posts?.length || 0}{" "}
+          {posts?.length === 1 ? "post" : "posts"}
+        </p>
       </div>
-      <Link
-        to={"/post"}
-        className="btn btn-primary btn-circle fixed bottom-6 right-6 shadow-xl"
-      >
-        <FaPlus />
-      </Link>
     </div>
-  );
+
+    {/* POSTS */}
+    <div className="space-y-6">
+      {posts && posts.length > 0 ? (
+        posts.map((post) => (
+        <div
+  key={post._id}
+  className="bg-base-100 border border-base-300 rounded-2xl shadow-md p-5 sm:p-6 hover:shadow-lg transition"
+>
+  {/* HEADER */}
+  <div className="flex items-start justify-between gap-4">
+    {/* USER NAME */}
+    <Link
+      to="/profile"
+      className="font-semibold text-sm sm:text-base text-base-content hover:underline"
+    >
+      {post.userId.name}
+    </Link>
+
+    {/* ACTIONS */}
+    {editingPostId !== post._id && (
+      <div className="flex gap-2">
+        <button
+          className="btn btn-xs sm:btn-sm btn-outline btn-info"
+          onClick={() => {
+            setEditingPostId(post._id);
+            setUpdatedText(post.post);
+          }}
+        >
+          Edit
+        </button>
+        <button
+          className="btn btn-xs sm:btn-sm btn-outline btn-error"
+          onClick={() => handleDelete(post._id)}
+        >
+          Delete
+        </button>
+      </div>
+    )}
+  </div>
+
+  {/* CONTENT */}
+  {editingPostId === post._id ? (
+    <div className="flex flex-col gap-3 mt-4">
+      <textarea
+        className="textarea textarea-bordered w-full text-sm sm:text-base"
+        rows={4}
+        value={updatedText}
+        onChange={(e) => setUpdatedText(e.target.value)}
+      />
+
+      <div className="flex justify-end gap-3">
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => handleUpdate(post._id)}
+        >
+          Update
+        </button>
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={() => {
+            setEditingPostId(null);
+            setUpdatedText("");
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  ) : (
+    <p className="text-base-content text-base sm:text-lg mt-4 leading-relaxed">
+      {post.post}
+    </p>
+  )}
+</div>
+
+        ))
+      ) : (
+        /* EMPTY STATE */
+        <div className="flex flex-col items-center justify-center text-center py-20 border border-dashed border-base-300 rounded-2xl bg-base-100">
+          <div className="w-20 h-20 flex items-center justify-center rounded-full bg-base-200 mb-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-10 w-10 opacity-50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7 8h10M7 12h6m-2 8h-4a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v6"
+              />
+            </svg>
+          </div>
+
+          <h2 className="text-2xl font-semibold text-base-content">
+            No posts yet
+          </h2>
+
+          <p className="opacity-60 mt-2 max-w-sm">
+            When you share thoughts, ideas, or moments, they’ll appear here.
+          </p>
+
+          <Link to="/post" className="mt-6 btn btn-primary px-8">
+            Create your first post
+          </Link>
+        </div>
+      )}
+    </div>
+
+    {/* FLOATING BUTTON */}
+    <Link
+      to="/post"
+      className="btn btn-primary btn-circle fixed bottom-6 right-6 shadow-xl"
+    >
+      <FaPlus />
+    </Link>
+  </div>
+);
+
 };
 
 export default ProfileScreen;

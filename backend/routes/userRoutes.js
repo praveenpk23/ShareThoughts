@@ -10,7 +10,9 @@ import {
   getUserProfile,
   updateUserProfile,
   forgotPasswordStep1,
-  forgotPasswordStep2
+  forgotPasswordStep2,
+  checkUsernameAvailability,
+  usernameSuggestions
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
@@ -25,7 +27,8 @@ router.post("/register/step1", registerStep1);
 router.post("/register/verify", registerVerify);
 router.post("/forgetpassword/step1",forgotPasswordStep1);
 router.post("/forgetpassword/step2",forgotPasswordStep2);
-// router.post("/register/step3", handleFinalRegister); // New route for final registration step
+router.get("/check-username",checkUsernameAvailability)
+router.get("/username-suggestions", usernameSuggestions)
 
 
 export default router;

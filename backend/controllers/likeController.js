@@ -30,16 +30,7 @@ export const unlikePost = async (req, res) => {
 // no of likes and current user liked or not
 export const getPostLikes = async (req, res) => {
   const { postId } = req.params;
-  // const userId = async ()=>{
-  //   const token = req.cookies.jwt
-  //   if(token){
-  //     const decoded = jwt.verify(re,process.env.JWT_SECRET) 
-  //     return decoded.userId 
-  //   }
-  //   else{
-  //     return null
-  //   }
-  // }
+
   let userId = null
   if(req.cookies.jwt){
     try{

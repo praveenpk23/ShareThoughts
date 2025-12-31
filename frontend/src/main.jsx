@@ -17,6 +17,7 @@ import LoginScreen from "./features/auth/pages/LoginScreen.jsx";
 import RegisterScreen from "./features/auth/pages/RegisterScreen.jsx";
 import NotFound from "./NotFound";
 import PostForm from "./features/posts/pages/PostForm.jsx";
+import SearchPage from './features/posts/pages/SearchPage.jsx'
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
@@ -26,7 +27,7 @@ const router = createBrowserRouter(
       <Route path="/post/:id" element={<PostDetails />} />
       <Route path="/profile/:id" element={<ProfileDetails />} />
       <Route path="/login" element={<LoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
+      <Route path="/search" element={<SearchPage />} />
       <Route path="*" element={<NotFound />} />
     </Route>
   )

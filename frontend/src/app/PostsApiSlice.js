@@ -1,6 +1,7 @@
 import { apiSlice } from "./apiSlice";
 import { POST_URL } from "../Constant";
-
+import {USER_URL} from "../Constant";
+import {COMMENT_URL} from "../Constant";
 export const postsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Create post (mutation)
@@ -49,6 +50,34 @@ export const postsApi = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
     }),
+
+
+       // 🔹 Add comment to a post
+    addComment: builder.mutation({
+      query: ({ postId, comment }) => ({
+        url: COMMENT_URL,
+        method: "POST",
+        body: { postId, comment },
+      }),
+      invalidatesTags: ["Comments"],
+    }),
+
+    // 🔹 Add reply to a comment
+    addReply: builder.mutation({
+      query: ({ commentId, comment, mention }) => ({
+        url: `${COMMENT_URL}/reply`,
+        method: "POST",
+        body: { commentId, comment, mention },
+      }),
+      invalidatesTags: ["Comments"],
+    }),
+
+    // 🔹 Get comments for a post
+    getCommentsByPost: builder.query({
+      query: (postId) => `${COMMENT_URL}/${postId}`,
+      providesTags: ["Comments"],
+    }),
+
   }),
 });
 
@@ -59,4 +88,9 @@ export const {
   useGetAllPostsByUserQuery,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useAddCommentMutation,
+  useAddReplyMutation,
+  useGetCommentsByPostQuery,
 } = postsApi;
+
+

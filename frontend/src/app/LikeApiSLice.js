@@ -27,8 +27,9 @@ const likeApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
       // providesTags: ["Like"],
-        // Provide a tag for this specific post so mutations can invalidate it
-      providesTags: (result, error, arg) => [{ type: "PostLikes", id: arg }],
+      providesTags: (result, error, contentId) => [
+        { type: "Like", id: contentId },
+      ],
     }),
     getLikedPosts: builder.query({
       query: () => ({
