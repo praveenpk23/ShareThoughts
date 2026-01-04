@@ -28,6 +28,7 @@ const userApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: `${USER_URL}/logout`,
         method: "POST",
+        credentials: "include",
       }),
       invalidatesTags: ["User"],
     }),

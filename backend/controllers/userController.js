@@ -4,7 +4,6 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import Otp from "../models/otpModel.js";
 
-
 import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
 
 // Initialize Brevo
@@ -13,13 +12,21 @@ brevoApi.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
 // STEP 1 – Send OTP
 export const registerStep1 = asyncHandler(async (req, res) => {
-  const { name, email, username, password, profession, interests, forPeople, bio } =
-    req.body;
+  const {
+    name,
+    email,
+    username,
+    password,
+    profession,
+    interests,
+    forPeople,
+    bio,
+  } = req.body;
 
   // Check if user already exists
-const userExists = await User.findOne({
-  $or: [{ email }, { username:username.toLowerCase() }],
-});
+  const userExists = await User.findOne({
+    $or: [{ email }, { username: username.toLowerCase() }],
+  });
   if (userExists) {
     res.status(400);
     throw new Error("User already exists with this email or username");
@@ -126,7 +133,7 @@ export const registerVerify = asyncHandler(async (req, res) => {
   //   res.status(400);
   //   throw new Error("Invalid or expired OTP");
   // }
-   if (!record) {
+  if (!record) {
     res.status(400);
     throw new Error("Wrong OTP !");
   }
@@ -166,8 +173,7 @@ export const registerVerify = asyncHandler(async (req, res) => {
     bio: user.bio,
     username: user.username,
     isVerified: user.isVerified,
-
-  }); 
+  });
 });
 
 // @desc Login user
@@ -200,7 +206,12 @@ export const loginUser = asyncHandler(async (req, res) => {
 // @desc Logout user
 // @route POST /api/users/logout
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.clearCookie("jwt");
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+  });
   res.json({ message: "Logged out" });
 });
 
@@ -262,7 +273,6 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 //   });
 // });
 
-
 export const updateUserProfile = asyncHandler(async (req, res) => {
   const userId = req.user._id; // From auth middleware
   const user = await User.findById(userId);
@@ -298,7 +308,6 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     ...updatedUser.toObject(), // Include any new fields dynamically
   });
 });
-
 
 // Forget Password - Send OTP
 // const brevoApi = new TransactionalEmailsApi();
@@ -408,11 +417,6 @@ export const forgotPasswordStep2 = asyncHandler(async (req, res) => {
   res.json({ message: "Password reset successfully!" });
 });
 
-
-
-
-
-
 // @desc Check username availability
 // @route GET /api/users/check-username?username=xyz
 export const checkUsernameAvailability = asyncHandler(async (req, res) => {
@@ -438,9 +442,6 @@ export const checkUsernameAvailability = asyncHandler(async (req, res) => {
   });
 });
 
-
-
-
 // @desc Username suggestions
 // @route GET /api/users/username-suggestions?search=praveen
 export const usernameSuggestions = asyncHandler(async (req, res) => {
@@ -454,10 +455,7 @@ export const usernameSuggestions = asyncHandler(async (req, res) => {
   const regex = new RegExp(`^${search}`, "i");
 
   const users = await User.find({
-    $or: [
-      { username: regex },
-      { name: regex },
-    ],
+    $or: [{ username: regex }, { name: regex }],
   })
     .limit(5)
     .select("_id username name");
@@ -470,5 +468,3 @@ export const usernameSuggestions = asyncHandler(async (req, res) => {
     })),
   });
 });
-
-
